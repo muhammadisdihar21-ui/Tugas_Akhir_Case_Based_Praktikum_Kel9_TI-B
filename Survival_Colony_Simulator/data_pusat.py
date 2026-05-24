@@ -78,6 +78,7 @@ sick_survivors = {}
 # LEVEL CAMP
 camp_level = 1
 
+
 # BIAYA UPGRADE CAMP
 camp_upgrade_cost = {
     2: {"Makanan": 20, "Material": 20, "Obat": 5},

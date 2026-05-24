@@ -1,4 +1,4 @@
-FITUR CAMP import json
+import json
 import random
 import data_pusat
 import fitur_survivor
