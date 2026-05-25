@@ -77,25 +77,30 @@ def sort_survivors():
 
     choice = input("Pilih: ")
 
-    if choice == "1":
-        sorted_list = sorted(
-            data_pusat.survivors,
-            key=lambda x: x.energi,
-            reverse=True
-        )
-        kategori = "ENERGI"
+    # Copy list agar data asli tidak berubah
+    sorted_list = data_pusat.survivors[:]
 
-    elif choice == "2":
-        sorted_list = sorted(
-            data_pusat.survivors,
-            key=lambda x: x.level,
-            reverse=True
-        )
-        kategori = "LEVEL "
+    n = len(sorted_list)
 
-    else:
-        print("\nPilihan tidak valid")
-        return
+    # BUBBLE SORT
+    for i in range(n):
+        for j in range(0, n - i - 1):
+
+            if choice == "1":
+                if sorted_list[j].energi < sorted_list[j + 1].energi:
+                    sorted_list[j], sorted_list[j + 1] = sorted_list[j + 1], sorted_list[j]
+
+                kategori = "ENERGI"
+
+            elif choice == "2":
+                if sorted_list[j].level < sorted_list[j + 1].level:
+                    sorted_list[j], sorted_list[j + 1] = sorted_list[j + 1], sorted_list[j]
+
+                kategori = "LEVEL"
+
+            else:
+                print("\nPilihan tidak valid")
+                return
 
     print(f"\n==== DATA SURVIVOR BERDASARKAN {kategori} =====")
     print("-------------------------------------------")

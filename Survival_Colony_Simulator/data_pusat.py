@@ -1,4 +1,3 @@
-from collections import deque
 from komponen_game import Area
 
 # LIST
@@ -22,7 +21,7 @@ stack_eksplorasi = []
 
 # QUEUE
 # Menyimpan antrean eksplorasi
-queue_eksplorasi = deque()
+queue_eksplorasi = []
 
 # SET
 # Menyimpan area yang sudah dikunjungi
@@ -77,7 +76,6 @@ sick_survivors = {}
         
 # LEVEL CAMP
 camp_level = 1
-
 
 # BIAYA UPGRADE CAMP
 camp_upgrade_cost = {
