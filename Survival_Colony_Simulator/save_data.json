@@ -1,0 +1,19 @@
+{
+    "hari": 4,
+    "sumber_daya": {
+        "Makanan": 9,
+        "Material": 44,
+        "Obat": 36
+    },
+    "camp_damaged": true,
+    "camp_level": 1,
+    "sick_survivors": {},
+    "survivors": [
+        {
+            "nama": "aku",
+            "energi": 40,
+            "level": 11,
+            "exp": 0
+        }
+    ]
+}

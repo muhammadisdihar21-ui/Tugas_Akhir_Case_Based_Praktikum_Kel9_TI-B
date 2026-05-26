@@ -77,6 +77,14 @@ def sort_survivors():
 
     choice = input("Pilih: ")
 
+    if choice == "1":
+        kategori = "ENERGI"
+    elif choice == "2":
+        kategori = "LEVEL"
+    else:
+        print("\nPilihan tidak valid")
+        return
+
     # Copy list agar data asli tidak berubah
     sorted_list = data_pusat.survivors[:]
 
@@ -90,17 +98,11 @@ def sort_survivors():
                 if sorted_list[j].energi < sorted_list[j + 1].energi:
                     sorted_list[j], sorted_list[j + 1] = sorted_list[j + 1], sorted_list[j]
 
-                kategori = "ENERGI"
 
             elif choice == "2":
                 if sorted_list[j].level < sorted_list[j + 1].level:
                     sorted_list[j], sorted_list[j + 1] = sorted_list[j + 1], sorted_list[j]
 
-                kategori = "LEVEL"
-
-            else:
-                print("\nPilihan tidak valid")
-                return
 
     print(f"\n==== DATA SURVIVOR BERDASARKAN {kategori} =====")
     print("-------------------------------------------")

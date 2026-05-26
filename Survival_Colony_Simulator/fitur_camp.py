@@ -293,7 +293,7 @@ def next_day():
     # Istirahat
     for s in data_pusat.survivors:
         if s.energi > 0 and s.nama.lower() not in data_pusat.sick_survivors:
-            rest_energy = 50
+            rest_energy = 60
 
             if data_pusat.camp_level >= 2:
                 rest_energy = 70
