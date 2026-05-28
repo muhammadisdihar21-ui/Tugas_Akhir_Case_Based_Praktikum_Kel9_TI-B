@@ -3,16 +3,17 @@ import random
 import data_pusat
 import fitur_survivor
 import fitur_log
+from fitur_achievement import check_achievements
 from komponen_game import Survivor
 
 # MENAMPILKAN RESOURCE
 def show_resources():
-    print("\n=========== SUMBER DAYA KOLONI ============")
+    print("\n==================== SUMBER DAYA KOLONI ====================")
 
     for key, value in data_pusat.sumber_daya.items():
         print(f"{key:<10}: {value}")
 
-    print("===========================================")
+    print("============================================================")
 
 # MAKANAN
 # Fungsi untuk memberikan makanan kepada survivor
@@ -59,8 +60,17 @@ def eat_food():
     if survivor.energi > 100:
         survivor.energi = 100
         
-    print(f"\n{survivor.nama} mendapatkan + {amount * 10} energi")
+    print(f"\n{survivor.nama} mendapatkan +{amount * 10} energi")
+
+# SCALING COST BERDASARKAN HARI
+def get_event_cost():
+    cost = 5 + ((data_pusat.hari - 1) // 10) * 5
+
+    if cost > 100:
+        cost = 100
     
+    return cost
+
 # REPAIR CAMP
 # Fungsi untuk memperbaiki camp
 def repair_camp():
@@ -68,15 +78,15 @@ def repair_camp():
         print("\nCamp tidak rusak")
         return
         
-    repair_cost = 5
+    repair_cost = get_event_cost()
 
     if data_pusat.sumber_daya["Material"] < repair_cost:
-        print("\nMaterial tidak cukup")
+        print(f"\nMaterial tidak cukup (Butuh {repair_cost} Material)")
         return
         
     data_pusat.sumber_daya["Material"] -= repair_cost
     data_pusat.camp_damaged = False
-    print("\nCamp berhasil diperbaiki")
+    print(f"\nCamp berhasil diperbaiki dengan biaya {repair_cost} Material")
 
 # HEAL SURVIVOR
 # Fungsi mengobati survivor yang sakit
@@ -85,12 +95,12 @@ def heal_survivor():
         print("\nTidak ada survivor yang sakit")
         return
         
-    print("\n============= SURVIVOR SAKIT ==============")
+    print("\n====================== SURVIVOR SAKIT ======================")
 
     for name in data_pusat.sick_survivors:
         print("-", name)
 
-    print("===========================================")
+    print("============================================================")
 
     name = input("Masukkan nama survivor: ").strip().lower()
 
@@ -108,10 +118,10 @@ def heal_survivor():
         print("\nSurvivor ini tidak sedang sakit")
         return
         
-    medicine_cost = 10
+    medicine_cost = get_event_cost()
 
     if data_pusat.sumber_daya["Obat"] < medicine_cost:
-        print("\nObat tidak cukup")
+        print(f"\nObat tidak cukup (Butuh {medicine_cost} Obat)")
         return
         
     data_pusat.sumber_daya["Obat"] -= medicine_cost
@@ -122,7 +132,7 @@ def heal_survivor():
             s.energi = 10
             break
         
-    print(f"\n{name} berhasil sembuh")
+    print(f"\n{name} berhasil sembuh dengan biaya {medicine_cost} Obat")
     print("Energi rendah, beri makanan untuk menambah energi")
     
 # INFO UPGRADE
@@ -130,15 +140,29 @@ def show_upgrade_info():
 
     next_level = data_pusat.camp_level + 1
 
-    print("\n============ INFO UPGRADE CAMP ============")
+    print("\n==================== INFO UPGRADE CAMP =====================")
     print(f"Level Camp Saat Ini: {data_pusat.camp_level}")
 
     if next_level > 5:
         print("Camp sudah level maksimum (Lv5)")
-        print("===========================================")
+        print("============================================================")
         return
 
-    print(f"\nUntuk Upgrade ke Level {next_level}:")
+    print(f"\nKeuntungan Upgrade ke Level {next_level}:")
+
+    if next_level == 2:
+        print("- Rest energy +20 (50 → 70)")
+    
+    elif next_level == 3:
+        print("- Event lebih aman (lebih sering tidak terjadi apa-apa / food event)")
+
+    elif next_level == 4:
+        print("- Bonus eksplorasi +5 resource")
+
+    elif next_level == 5:
+        print("- Unlock Achievement System")
+
+    print(f"\nUntuk Upgrade ke Level {next_level} Membutuhkan:")
 
     if next_level == 2:
         print("- 20 Makanan")
@@ -164,7 +188,7 @@ def show_upgrade_info():
         print("- 50 Obat")
         print("- Minimal 1 survivor level 100")
 
-    print("===========================================")
+    print("============================================================")
 
 # CEK UPGRADE
 def check_upgrade():
@@ -260,6 +284,8 @@ def upgrade_camp():
     data_pusat.camp_level = next_level
 
     print(f"\nCamp berhasil upgrade ke Level {next_level}!")
+    
+    check_achievements()
 
 # SISTEM PERGANTIAN HARI   
 def next_day():
@@ -282,6 +308,11 @@ def next_day():
 
         for s in dead:
             data_pusat.survivors.remove(s)
+        
+        data_pusat.total_survivor_dead += len(dead)
+
+        if len(data_pusat.survivors) < data_pusat.min_survivor_reached:
+            data_pusat.min_survivor_reached = len(data_pusat.survivors)
 
         data_pusat.sick_survivors.clear() 
        
@@ -292,8 +323,8 @@ def next_day():
 
     # Istirahat
     for s in data_pusat.survivors:
-        if s.energi > 0 and s.nama.lower() not in data_pusat.sick_survivors:
-            rest_energy = 60
+        if s.energi >= 0 and s.nama.lower() not in data_pusat.sick_survivors:
+            rest_energy = 50
 
             if data_pusat.camp_level >= 2:
                 rest_energy = 70
@@ -302,7 +333,9 @@ def next_day():
             if s.energi > 100:
                 s.energi = 100
 
-    print(f"\n================= HARI {data_pusat.hari} ==================")
+    print("\n============================================================")
+    print(f"                         HARI KE {data_pusat.hari}")
+    print("============================================================")
 
     # EVENT NORMAL
     events = [
@@ -354,30 +387,96 @@ def next_day():
         print("\n📦 Jackpot! Menemukan peti persediaan militer kuno.")
         print("+5 Makanan, +10 Material, +2 Obat didapatkan")
 
-    print("\n===========================================")
+    print("\n============================================================")
+
+    # RESET LOKASI SEMUA SURVIVOR KEMBALI KE CAMP SETIAP GANTI HARI
+    for survivor in data_pusat.survivors:
+        survivor.lokasi = "Camp"
+    
 
     fitur_log.add_single_log(f"Hari {data_pusat.hari}: {event}")
     fitur_log.add_double_log(f"Hari {data_pusat.hari}: {event}")
-
-        
-    
+    check_achievements()
 
 # SAVE GAME
 def save_game():
 
     data = {
+
+        # DATA UTAMA
         "hari": data_pusat.hari,
-        "sumber_daya": data_pusat.sumber_daya,
-        "camp_damaged": data_pusat.camp_damaged,
+        "sumber_daya": data_pusat.sumber_daya.copy(),
+
         "camp_level": data_pusat.camp_level,
+        "camp_damaged": data_pusat.camp_damaged,
+
         "sick_survivors": data_pusat.sick_survivors,
-        "survivors": [s.to_dict() for s in data_pusat.survivors]
+
+        "explore_count": data_pusat.explore_count,
+
+        # SURVIVOR
+        "survivors": [
+            s.to_dict() for s in data_pusat.survivors
+        ],
+
+        # EKSPLORASI
+        "stack_eksplorasi": data_pusat.stack_eksplorasi.copy(),
+
+        "queue_eksplorasi": data_pusat.queue_eksplorasi.copy(),
+
+        "area_dikunjungi": list(data_pusat.area_dikunjungi),
+
+        # ACHIEVEMENT
+        "achievements": data_pusat.achievements,
+
+        # HISTORY
+        "total_survivor_created":
+        data_pusat.total_survivor_created,
+
+        "total_survivor_dead":
+        data_pusat.total_survivor_dead,
+
+        "max_survivor_reached":
+        data_pusat.max_survivor_reached,
+
+        "min_survivor_reached":
+        data_pusat.min_survivor_reached,
+
+        # LOG SINGLE LINKED LIST
+        "single_logs": [],
+
+        # LOG DOUBLE LINKED LIST
+        "double_logs": [],
+
+        # CURRENT TURN
+        "current_turn": None
     }
 
+    # SAVE SINGLE LINKED LIST
+    current = data_pusat.log_head
+
+    while current:
+        data["single_logs"].append(current.data)
+        current = current.next
+
+    # SAVE DOUBLE LINKED LIST
+    current = data_pusat.double_head
+
+    while current:
+        data["double_logs"].append(current.data)
+        current = current.next
+
+    # SAVE CURRENT TURN
+    if data_pusat.current_turn:
+        data["current_turn"] = (
+            data_pusat.current_turn.survivor.nama
+        )
+
+    # SAVE JSON
     with open("save_data.json", "w") as file:
         json.dump(data, file, indent=4)
 
-    print("\nGame berhasil disimpan")
+    print("\n💾 Game berhasil disimpan")
 
 # LOAD GAME
 def load_game():
@@ -386,26 +485,129 @@ def load_game():
         with open("save_data.json", "r") as file:
             data = json.load(file)
 
-        data_pusat.hari = data["hari"]
-        data_pusat.sumber_daya = data["sumber_daya"]
-        data_pusat.camp_damaged = data.get("camp_damaged", False)
-        data_pusat.camp_level = data.get("camp_level", 1)
-        data_pusat.sick_survivors = data.get("sick_survivors", {})
-
+        # RESET DATA
         data_pusat.survivors.clear()
-        data_pusat.circular_head = None
 
+        data_pusat.log_head = None
+
+        data_pusat.double_head = None
+        data_pusat.double_tail = None
+
+        data_pusat.circular_head = None
+        data_pusat.current_turn = None
+
+        # LOAD DATA UTAMA
+        data_pusat.hari = data["hari"]
+
+        data_pusat.sumber_daya = (
+            data["sumber_daya"]
+        )
+
+        data_pusat.camp_level = (
+            data["camp_level"]
+        )
+
+        data_pusat.camp_damaged = (
+            data["camp_damaged"]
+        )
+
+        data_pusat.sick_survivors = (
+            data["sick_survivors"]
+        )
+
+        data_pusat.explore_count = (
+            data["explore_count"]
+        )
+
+        # LOAD EKSPLORASI
+        data_pusat.stack_eksplorasi = (
+            data["stack_eksplorasi"]
+        )
+
+        data_pusat.queue_eksplorasi = (
+            data["queue_eksplorasi"]
+        )
+
+        data_pusat.area_dikunjungi = set(
+            data["area_dikunjungi"]
+        )
+
+        # LOAD ACHIEVEMENT
+        data_pusat.achievements = (
+            data["achievements"]
+        )
+
+        # LOAD HISTORY
+        data_pusat.total_survivor_created = (
+            data["total_survivor_created"]
+        )
+
+        data_pusat.total_survivor_dead = (
+            data["total_survivor_dead"]
+        )
+
+        data_pusat.max_survivor_reached = (
+            data["max_survivor_reached"]
+        )
+
+        data_pusat.min_survivor_reached = (
+            data["min_survivor_reached"]
+        )
+
+        # LOAD SURVIVOR
         for s in data["survivors"]:
+
             survivor = Survivor(
                 s["nama"],
                 s["energi"],
-                s["level"]
+                s["level"],
+                s["exp"],
+                s["lokasi"]
             )
 
-            data_pusat.survivors.append(survivor)
-            fitur_log.add_circular_survivor(survivor)
+            data_pusat.survivors.append(
+                survivor
+            )
 
-        print("\nGame berhasil dimuat")
+            # CIRCULAR LINKED LIST
+            fitur_log.add_circular_survivor(
+                survivor
+            )
+
+        # LOAD SINGLE LOG
+        for log in data["single_logs"]:
+            fitur_log.add_single_log(log)
+
+        # LOAD DOUBLE LOG
+        for log in data["double_logs"]:
+            fitur_log.add_double_log(log)
+
+        # LOAD CURRENT TURN
+        current_name = data["current_turn"]
+
+        if current_name and data_pusat.circular_head:
+
+            current = data_pusat.circular_head
+
+            while True:
+
+                if (
+                    current.survivor.nama
+                    == current_name
+                ):
+
+                    data_pusat.current_turn = current
+                    break
+
+                current = current.next
+
+                if current == data_pusat.circular_head:
+                    break
+
+        print("\n📂 Game berhasil dimuat")
 
     except FileNotFoundError:
-        print("\nSave data tidak ditemukan")
+        print("\n❌ Save data tidak ditemukan")
+
+    except json.JSONDecodeError:
+        print("\n❌ Save data rusak")

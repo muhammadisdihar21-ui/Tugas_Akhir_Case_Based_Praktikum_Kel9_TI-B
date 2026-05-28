@@ -31,10 +31,10 @@ area_dikunjungi = set()
 # Hubungan antar area
 area_graph = {
     "Camp": ["Hutan", "Sungai"],
-    "Hutan": ["Kota Terbengkalai"],
-    "Sungai": ["Gua"],
-    "Kota Terbengkalai": [],
-    "Gua": []
+    "Hutan": ["Kota Terbengkalai", "Sungai"],
+    "Sungai": ["Gua", "Hutan"],
+    "Kota Terbengkalai": ["Hutan"],
+    "Gua": ["Sungai"]
 }
 
 # TREE
@@ -68,6 +68,7 @@ double_tail = None
 
 # CIRCULAR LINKED LIST
 circular_head = None
+current_turn = None
 
 # SISTEM BARU
 explore_count = 0
@@ -84,3 +85,14 @@ camp_upgrade_cost = {
     4: {"Makanan": 40, "Material": 40, "Obat": 20},
     5: {"Makanan": 80, "Material": 80, "Obat": 50}
 }
+
+# ACHIEVEMENT SYSTEM
+# ===== ACHIEVEMENT TRACKING =====
+achievements = []
+
+# ===== HISTORY TRACKING =====
+total_survivor_created = 0
+total_survivor_dead = 0
+
+max_survivor_reached = 1
+min_survivor_reached = 999

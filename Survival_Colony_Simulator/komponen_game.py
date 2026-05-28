@@ -1,11 +1,12 @@
 # CLASS SURVIVOR
 # Menyimpan data survivor colony
 class Survivor:
-    def __init__(self, nama, energi=100, level=1, exp=0):
+    def __init__(self, nama, energi=100, level=1, exp=0, lokasi="Camp"):
         self.nama = nama
         self.energi = energi
         self.level = level
-        self.exp = 0  
+        self.exp = exp 
+        self.lokasi = lokasi
 
     # Mengubah object menjadi dictionary agar bisa disimpan ke file JSON
     def to_dict(self):
@@ -13,7 +14,8 @@ class Survivor:
             "nama": self.nama,
             "energi": self.energi,
             "level": self.level,
-            "exp" : self.exp
+            "exp" : self.exp,
+            "lokasi": self.lokasi
         }
 
 # CLASS AREA

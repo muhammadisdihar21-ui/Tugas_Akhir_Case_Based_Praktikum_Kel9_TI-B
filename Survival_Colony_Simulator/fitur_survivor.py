@@ -1,4 +1,5 @@
 import data_pusat
+from fitur_achievement import check_achievements
 from komponen_game import Survivor
 import fitur_log
 
@@ -10,8 +11,8 @@ def add_survivor():
         print("\nNama tidak boleh kosong")
         return
         
-    if len(nama) > 18:
-        print("\nNama terlalu panjang! Maks 18 karakter")
+    if len(nama) > 30:
+        print("\nNama terlalu panjang! Maks 30 karakter")
         return
         
     for s in data_pusat.survivors:
@@ -23,6 +24,11 @@ def add_survivor():
 
     data_pusat.survivors.append(survivor)
 
+    data_pusat.total_survivor_created += 1
+
+    if len(data_pusat.survivors) > data_pusat.max_survivor_reached:
+        data_pusat.max_survivor_reached = len(data_pusat.survivors)
+
     # Menambahkan survivor ke circular linked list
     fitur_log.add_circular_survivor(survivor)
 
@@ -32,20 +38,22 @@ def add_survivor():
 
     print("\nSurvivor berhasil ditambahkan")
 
+    check_achievements()
+
 # MENAMPILKAN SURVIVOR
 def view_survivors():
     if not data_pusat.survivors:
         print("\nBelum ada Survivor")
         return
 
-    print("\n============= DAFTAR SURVIVOR =============")
+    print("\n===================== DAFTAR SURVIVOR ======================")
 
     for i, s in enumerate(data_pusat.survivors, start=1):
         status = " [SAKIT]" if s.nama.lower() in data_pusat.sick_survivors else ""
         print(f"{i}. {s.nama}{status}")
         print(f"   Energi : {s.energi}")
         print(f"   Level  : {s.level}")
-        print("-------------------------------------------")
+        print("------------------------------------------------------------")
 
 # SEARCHING SURVIVOR
 def search_survivor():
@@ -55,11 +63,11 @@ def search_survivor():
 
     for s in data_pusat.survivors:
         if s.nama.lower() == keyword:
-            print("\n=========== SURVIVOR DITEMUKAN ============")
+            print("\n==================== SURVIVOR DITEMUKAN ====================")
             print(f"Nama   : {s.nama}")
             print(f"Energi : {s.energi}")
             print(f"Level  : {s.level}")
-            print("===========================================")
+            print("============================================================")
             found = True
 
     if not found:
@@ -80,7 +88,7 @@ def sort_survivors():
     if choice == "1":
         kategori = "ENERGI"
     elif choice == "2":
-        kategori = "LEVEL"
+        kategori = "LEVEL "
     else:
         print("\nPilihan tidak valid")
         return
@@ -104,15 +112,15 @@ def sort_survivors():
                     sorted_list[j], sorted_list[j + 1] = sorted_list[j + 1], sorted_list[j]
 
 
-    print(f"\n==== DATA SURVIVOR BERDASARKAN {kategori} =====")
-    print("-------------------------------------------")
-    print(f"{'No':<5}{'Nama':<20}{'Energi':^10}{'Level':^12}")
-    print("-------------------------------------------")
+    print(f"\n============= DATA SURVIVOR BERDASARKAN {kategori} =============")
+    print("------------------------------------------------------------")
+    print(f"{'No':<5}{'Nama':<36}{'Energi':^10}{'Level':^12}")
+    print("------------------------------------------------------------")
 
     for i, s in enumerate(sorted_list, start=1):
-        print(f"{str(i) + '.':<5}{s.nama:<20}{str(s.energi):^10}{str(s.level):^12}")
+        print(f"{str(i) + '.':<5}{s.nama:<36}{str(s.energi):^10}{str(s.level):^12}")
 
-    print("-------------------------------------------")
+    print("------------------------------------------------------------")
 
 # MENGHAPUS SURVIVOR
 def delete_survivor():
@@ -121,6 +129,9 @@ def delete_survivor():
     for s in data_pusat.survivors:
         if s.nama.lower() == nama.lower():
             data_pusat.survivors.remove(s)
+            data_pusat.total_survivor_dead += 1
+            if len(data_pusat.survivors) < data_pusat.min_survivor_reached:
+                data_pusat.min_survivor_reached = len(data_pusat.survivors)
             data_pusat.sick_survivors.pop(s.nama.lower(), None)
 
             data_pusat.circular_head = None
@@ -134,3 +145,5 @@ def delete_survivor():
             return
 
     print("\nSurvivor tidak ditemukan")
+
+    check_achievements()
